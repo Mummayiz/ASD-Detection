@@ -1,4 +1,4 @@
-﻿fastapi
+fastapi
 uvicorn[standard]
 python-dotenv
 pymongo
@@ -13,7 +13,7 @@ joblib
 threadpoolctl
 python-multipart
 opencv-python-headless
-setuptools
+setuptools>=68.0.0
 wheel
 boto3
 requests-oauthlib
