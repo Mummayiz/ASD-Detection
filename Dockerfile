@@ -1,4 +1,4 @@
-﻿# Use official Python 3.11 slim image
+# Use official Python 3.11 slim image
 FROM python:3.11-slim
 
 # Set working directory
@@ -19,9 +19,9 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 # Copy backend source
 COPY backend /app
 
-# Expose port (Render provides  at runtime)
+# Expose port (Render provides $PORT at runtime)
 ENV PORT=10000
 EXPOSE 10000
 
 # Start the FastAPI app using the PORT Render provides at runtime
-CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port "]
+CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT}"]
