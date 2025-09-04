@@ -1,4 +1,4 @@
-# Use official Python 3.11 slim image
+﻿# Use official Python 3.11 slim image
 FROM python:3.11-slim
 
 # Set working directory
@@ -14,7 +14,8 @@ COPY backend/requirements.txt /app/requirements.txt
 
 # Upgrade pip and install wheel/setuptools, then requirements
 RUN python -m pip install --upgrade pip setuptools wheel
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Install requirements and capture the installed packages for debugging
+RUN pip install --no-cache-dir -r /app/requirements.txt && python -m pip freeze > /app/pip_freeze.txt
 
 # Copy backend source
 COPY backend /app
@@ -23,5 +24,5 @@ COPY backend /app
 ENV PORT=10000
 EXPOSE 10000
 
-# Start the FastAPI app using the PORT Render provides at runtime
-CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT}"]
+# Start the FastAPI app using the PORT Render provides at runtime (use python -m uvicorn to avoid PATH surprises)
+CMD ["sh", "-c", "python -m uvicorn server:app --host 0.0.0.0 --port ${PORT}"]
