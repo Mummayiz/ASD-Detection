@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 set -e
-# Upgrade tooling first
+
+# 1) Upgrade packaging tools (idempotent)
 python -m pip install --upgrade pip setuptools wheel || true
-# Install requirements (idempotent)
+
+# 2) Install declared requirements (idempotent)
 python -m pip install -r backend/requirements.txt || true
-# If uvicorn still missing, install it explicitly
-python -c "import importlib,sys; 
-try:
-    importlib.import_module('uvicorn')
-except Exception:
-    import subprocess; subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'uvicorn[standard]'])"
-# Start uvicorn using the service python
+
+# 3) Ensure essential runtime packages that might be missing are present
+python -m pip install fastapi motor pymongo python-dotenv scikit-learn joblib opencv-python-headless || true
+
+# 4) Finally ensure uvicorn is present
+python -m pip install "uvicorn[standard]" || true
+
+# 5) Start uvicorn
 python -m uvicorn backend.server:app --host 0.0.0.0 --port ${PORT:-8001}
