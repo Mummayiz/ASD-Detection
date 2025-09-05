@@ -167,9 +167,9 @@ backend:
 
   - task: "Complete Assessment API"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -182,6 +182,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Complete assessment API verified with PSO-enhanced predictions. Successfully integrates PSO-optimized results from behavioral and eye tracking stages. Final ensemble weighting working correctly. All response structures maintained with enhanced PSO data included."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE: Complete assessment inherits the inverted prediction problem from behavioral and eye tracking stages. While API structure and weighting logic work correctly, final predictions are based on inverted probabilities from underlying ML models. This affects the overall assessment accuracy and clinical recommendations. Requires fixing the underlying model compatibility issues first."
 
 frontend:
   - task: "Fix blank page error"
