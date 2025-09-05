@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# 1) Upgrade tooling (idempotent)
+# 1) Upgrade packaging tools (idempotent)
 python -m pip install --upgrade pip setuptools wheel || true
 
 # 2) Install declared requirements (idempotent)
