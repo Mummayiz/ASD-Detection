@@ -345,22 +345,33 @@ async def api_health_check():
         "available_stages": ["behavioral", "eye_tracking", "facial_analysis"]
     }
 
-def get_asd_probability(model, predict_proba_result):
+def get_asd_probability_behavioral(model, predict_proba_result):
     """
-    Get the probability for ASD class from predict_proba result.
+    Get the probability for ASD class from predict_proba result for BEHAVIORAL models.
     Due to inverted training labels, ASD class is actually at index 0.
     """
     try:
-        classes = model.classes_
-        if len(classes) == 2:
-            # The models were trained with inverted labels:
-            # Class 0 = ASD, Class 1 = No ASD
-            # So we return the probability of Class 0 (index 0)
-            return predict_proba_result[0]
+        # The behavioral models were trained with inverted labels:
+        # Class 0 = ASD, Class 1 = No ASD
+        # So we return the probability of Class 0 (index 0)
         return predict_proba_result[0]
     except:
         # Fallback to first position
         return predict_proba_result[0]
+
+def get_asd_probability_eye_tracking(model, predict_proba_result):
+    """
+    Get the probability for ASD class from predict_proba result for EYE TRACKING models.
+    Eye tracking models use correct labels: Class 0 = No ASD, Class 1 = ASD
+    """
+    try:
+        # Eye tracking models use correct labeling:
+        # Class 0 = No ASD, Class 1 = ASD
+        # So we return the probability of Class 1 (index 1)
+        return predict_proba_result[1]
+    except:
+        # Fallback to second position
+        return predict_proba_result[1]
 
 @app.post("/api/assessment/behavioral")
 async def assess_behavioral(data: BehavioralAssessment):
@@ -381,8 +392,8 @@ async def assess_behavioral(data: BehavioralAssessment):
         svm_pred = models['behavioral_svm'].predict_proba(features_scaled)[0]
         
         # Get ASD probabilities using proper class handling
-        rf_asd_prob = get_asd_probability(models['behavioral_rf'], rf_pred)
-        svm_asd_prob = get_asd_probability(models['behavioral_svm'], svm_pred)
+        rf_asd_prob = get_asd_probability_behavioral(models['behavioral_rf'], rf_pred)
+        svm_asd_prob = get_asd_probability_behavioral(models['behavioral_svm'], svm_pred)
         
         # Use PSO for optimal ensemble weighting
         pso = PSO(n_particles=15, n_iterations=30)
@@ -461,8 +472,8 @@ async def assess_eye_tracking(data: EyeTrackingData):
         svm_pred = models['eye_tracking_svm'].predict_proba(features_scaled)[0]
         
         # Get ASD probabilities using proper class handling
-        rf_asd_prob = get_asd_probability(models['eye_tracking_rf'], rf_pred)
-        svm_asd_prob = get_asd_probability(models['eye_tracking_svm'], svm_pred)
+        rf_asd_prob = get_asd_probability_eye_tracking(models['eye_tracking_rf'], rf_pred)
+        svm_asd_prob = get_asd_probability_eye_tracking(models['eye_tracking_svm'], svm_pred)
         
         # Use PSO for optimal ensemble weighting
         pso = PSO(n_particles=15, n_iterations=30)
