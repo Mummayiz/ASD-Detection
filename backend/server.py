@@ -499,8 +499,8 @@ async def assess_eye_tracking(data: EyeTrackingData):
             'probability': float(pso_prob),
             'confidence': float(pso_score),
             'model_results': {
-                'random_forest': {'probability': float(rf_pred[1]), 'prediction': int(rf_pred[1] > 0.5)},
-                'svm': {'probability': float(svm_pred[1]), 'prediction': int(svm_pred[1] > 0.5)},
+                'random_forest': {'probability': float(rf_asd_prob), 'prediction': int(rf_asd_prob > 0.5)},
+                'svm': {'probability': float(svm_asd_prob), 'prediction': int(svm_asd_prob > 0.5)},
                 'pso': {'probability': float(pso_prob), 'prediction': int(pso_pred), 'weights': optimal_weights.tolist()}
             },
             'explanation': explanation,
