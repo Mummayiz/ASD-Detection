@@ -107,9 +107,9 @@ user_problem_statement: "ASD detection application with introduction page, behav
 backend:
   - task: "Behavioral Assessment API"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -122,6 +122,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "PSO INTEGRATION VERIFIED: Behavioral assessment now successfully uses PSO optimization for ensemble weighting. Tested with neutral values (0.5) - all working perfectly. PSO weights are properly normalized (sum to 1.0), PSO predictions included in model_results response. Neutral values (0, 0.5, 1) validation working correctly. Updated dataset compatibility confirmed with autism_behavioral.csv structure."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE FOUND: After library updates to Python 3 compatible versions (scikit-learn 1.3.2), model predictions are INVERTED. High ASD indicators (all 1s) return probability ~0.000004, while low ASD indicators (all 0s) return probability ~1.0. This is opposite of expected behavior. API functions without crashes, PSO optimization works, neutral values accepted, but prediction logic is reversed. Likely caused by scikit-learn version mismatch (models trained with 1.3.0, running on 1.3.2). REQUIRES MODEL RETRAINING OR VERSION DOWNGRADE before production deployment."
 
   - task: "Eye Tracking Assessment API"
     implemented: true
