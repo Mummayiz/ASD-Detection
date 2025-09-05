@@ -29,34 +29,12 @@ import random
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def clean_mongo_doc(doc):
-    """Clean MongoDB document by removing ObjectId and converting datetime"""
-    if doc is None:
-        return None
-    
-    cleaned = {}
-    for key, value in doc.items():
-        if key == '_id':
-            continue  # Skip ObjectId
-        elif isinstance(value, ObjectId):
-            cleaned[key] = str(value)
-        elif isinstance(value, datetime):
-            cleaned[key] = value.isoformat()
-        elif isinstance(value, dict):
-            cleaned[key] = clean_mongo_doc(value)
-        elif isinstance(value, list):
-            cleaned[key] = [clean_mongo_doc(item) if isinstance(item, dict) else item for item in value]
-        else:
-            cleaned[key] = value
-    return cleaned
+# Flexible model directory (defaults to <repo-root>/models)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # backend folder
+ROOT_DIR = os.path.dirname(BASE_DIR)                    # project root
+MODELS_DIR = os.environ.get("MODELS_DIR", os.path.join(ROOT_DIR, "models"))
 
-def json_encoder(obj):
-    """Custom JSON encoder for MongoDB ObjectId and datetime objects"""
-    if isinstance(obj, ObjectId):
-        return str(obj)
-    if isinstance(obj, datetime):
-        return obj.isoformat()
-    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(
     title="ASD Detection API",
@@ -64,18 +42,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Database connection
-MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URL)
-db = client.asd_detection
 
 # Global variables for models
 models = {}
@@ -279,7 +245,16 @@ class AssessmentResult(BaseModel):
     behavioral_prediction: Optional[Dict[str, Any]] = None
     eye_tracking_prediction: Optional[Dict[str, Any]] = None
     facial_analysis_prediction: Optional[Dict[str, Any]] = None
+<<<<<<< HEAD
     def _safe_load_model(fname):
+=======
+    final_prediction: Dict[str, Any]
+    confidence_score: float
+    explanation: Dict[str, Any]
+    timestamp: str
+
+def _safe_load_model(fname):
+>>>>>>> 9043097 (Use MODELS_DIR and safe loader for model files)
     """Load a joblib model from MODELS_DIR; return None and log on failure."""
     path = os.path.join(MODELS_DIR, fname)
     if not os.path.exists(path):
@@ -292,12 +267,30 @@ class AssessmentResult(BaseModel):
     except Exception as e:
         logger.error(f"Failed to load model {path}: {e}")
         return None
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 9043097 (Use MODELS_DIR and safe loader for model files)
 @app.on_event("startup")
 async def load_models():
     """Load trained ML models on startup (safe, flexible paths)."""
     global models, scalers, encoders
+<<<<<<< HEAD
     try:
         # Behavioral models
+=======
+
+    # initialize containers if not present
+    models = globals().get("models", {})
+    scalers = globals().get("scalers", {})
+    encoders = globals().get("encoders", {})
+
+    try:
+        logger.info(f"Attempting to load models from MODELS_DIR={MODELS_DIR}")
+
+        # Behavioral models (required for primary prediction)
+>>>>>>> 9043097 (Use MODELS_DIR and safe loader for model files)
         models['behavioral_rf'] = _safe_load_model('behavioral_rf_model.joblib')
         models['behavioral_svm'] = _safe_load_model('behavioral_svm_model.joblib')
         scalers['behavioral']   = _safe_load_model('behavioral_scaler.joblib')
@@ -309,8 +302,17 @@ async def load_models():
             logger.warning("Behavioral models not fully loaded; behavioral stage may be degraded")
 
         # Eye-tracking models (optional)
+<<<<<<< HEAD
         if any(os.path.exists(os.path.join(MODELS_DIR, fn)) for fn in (
                 'eye_tracking_rf_model.joblib', 'eye_tracking_svm_model.joblib', 'eye_tracking_scaler.joblib')):
+=======
+        eye_files = [
+            'eye_tracking_rf_model.joblib',
+            'eye_tracking_svm_model.joblib',
+            'eye_tracking_scaler.joblib'
+        ]
+        if any(os.path.exists(os.path.join(MODELS_DIR, fn)) for fn in eye_files):
+>>>>>>> 9043097 (Use MODELS_DIR and safe loader for model files)
             models['eye_tracking_rf'] = _safe_load_model('eye_tracking_rf_model.joblib')
             models['eye_tracking_svm'] = _safe_load_model('eye_tracking_svm_model.joblib')
             scalers['eye_tracking'] = _safe_load_model('eye_tracking_scaler.joblib')
@@ -318,6 +320,7 @@ async def load_models():
         else:
             logger.info("No eye-tracking model files present in MODELS_DIR")
 
+<<<<<<< HEAD
         # Summary
         loaded_count = sum(1 for v in models.values() if v is not None)
         logger.info(f"Model loading complete. Models loaded: {loaded_count}")
@@ -329,9 +332,16 @@ async def load_models():
         
         logger.info("All models loaded successfully")
         
+=======
+        # Count how many models successfully loaded
+        loaded_count = sum(1 for v in models.values() if v is not None)
+        logger.info(f"Model loading complete. Models loaded: {loaded_count}")
+
+>>>>>>> 9043097 (Use MODELS_DIR and safe loader for model files)
     except Exception as e:
-        logger.error(f"Error loading models: {str(e)}")
-        raise e
+        logger.exception(f"Unexpected error while loading models: {e}")
+        # Do NOT re-raise — keep the app running so Render health checks can report status.
+
 
 @app.get("/")
 async def root():
