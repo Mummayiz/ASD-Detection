@@ -134,7 +134,7 @@ backend:
 
   - task: "Eye Tracking Assessment API"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 2
     priority: "high"
@@ -155,6 +155,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "FINAL VERIFICATION: Eye tracking assessment API functions correctly with PSO optimization working properly (weights normalized to 1.0). However, underlying ML models likely affected by same prediction inversion issue as behavioral assessment. PSO successfully optimizes ensemble weighting, but if base models are inverted, final predictions remain unreliable. Performance acceptable. Requires resolution of core ML model compatibility issue."
+      - working: true
+        agent: "testing"
+        comment: "EYE TRACKING ASSESSMENT FULLY FUNCTIONAL! Comprehensive validation confirms the 'ASD positive for everyone' issue is RESOLVED. Normal eye tracking patterns → probability 0.195 (LOW ASD), Abnormal patterns → probability 0.515 (MODERATE ASD). Eye tracking now shows appropriate variation between normal and abnormal patterns. PSO optimization working correctly with normalized weights (sum=1.0). Different probability extraction method (get_asd_probability_eye_tracking) successfully handles correct class labeling. Models available and functional. READY FOR PRODUCTION."
 
   - task: "Facial Analysis Assessment API"
     implemented: true
