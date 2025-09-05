@@ -462,9 +462,13 @@ async def assess_eye_tracking(data: EyeTrackingData):
         rf_pred = models['eye_tracking_rf'].predict_proba(features_scaled)[0]
         svm_pred = models['eye_tracking_svm'].predict_proba(features_scaled)[0]
         
+        # Get ASD probabilities using proper class handling
+        rf_asd_prob = get_asd_probability(models['eye_tracking_rf'], rf_pred)
+        svm_asd_prob = get_asd_probability(models['eye_tracking_svm'], svm_pred)
+        
         # Use PSO for optimal ensemble weighting
         pso = PSO(n_particles=15, n_iterations=30)
-        base_predictions = [rf_pred[1], svm_pred[1]]  # Probability of ASD class
+        base_predictions = [rf_asd_prob, svm_asd_prob]
         
         optimal_weights, pso_score = pso.optimize_prediction(base_predictions)
         
