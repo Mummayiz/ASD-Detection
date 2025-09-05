@@ -345,6 +345,25 @@ async def api_health_check():
         "available_stages": ["behavioral", "eye_tracking", "facial_analysis"]
     }
 
+def get_asd_probability(model, predict_proba_result):
+    """
+    Get the probability for ASD class (1) from predict_proba result.
+    Handles different class ordering between models.
+    """
+    try:
+        classes = model.classes_
+        if len(classes) == 2:
+            # Find index of ASD class (1)
+            asd_index = np.where(classes == 1)[0]
+            if len(asd_index) > 0:
+                return predict_proba_result[asd_index[0]]
+            # If class 1 not found, assume second position
+            return predict_proba_result[1]
+        return predict_proba_result[1]
+    except:
+        # Fallback to second position if anything goes wrong
+        return predict_proba_result[1]
+
 @app.post("/api/assessment/behavioral")
 async def assess_behavioral(data: BehavioralAssessment):
     """Stage 1: Behavioral Assessment with PSO optimization"""
@@ -363,9 +382,13 @@ async def assess_behavioral(data: BehavioralAssessment):
         rf_pred = models['behavioral_rf'].predict_proba(features_scaled)[0]
         svm_pred = models['behavioral_svm'].predict_proba(features_scaled)[0]
         
+        # Get ASD probabilities using proper class handling
+        rf_asd_prob = get_asd_probability(models['behavioral_rf'], rf_pred)
+        svm_asd_prob = get_asd_probability(models['behavioral_svm'], svm_pred)
+        
         # Use PSO for optimal ensemble weighting
         pso = PSO(n_particles=15, n_iterations=30)
-        base_predictions = [rf_pred[1], svm_pred[1]]  # Probability of ASD class
+        base_predictions = [rf_asd_prob, svm_asd_prob]
         
         optimal_weights, pso_score = pso.optimize_prediction(base_predictions)
         
@@ -396,8 +419,8 @@ async def assess_behavioral(data: BehavioralAssessment):
             'probability': float(pso_prob),
             'confidence': float(pso_score),
             'model_results': {
-                'random_forest': {'probability': float(rf_pred[1]), 'prediction': int(rf_pred[1] > 0.5)},
-                'svm': {'probability': float(svm_pred[1]), 'prediction': int(svm_pred[1] > 0.5)},
+                'random_forest': {'probability': float(rf_asd_prob), 'prediction': int(rf_asd_prob > 0.5)},
+                'svm': {'probability': float(svm_asd_prob), 'prediction': int(svm_asd_prob > 0.5)},
                 'pso': {'probability': float(pso_prob), 'prediction': int(pso_pred), 'weights': optimal_weights.tolist()}
             },
             'explanation': explanation,
