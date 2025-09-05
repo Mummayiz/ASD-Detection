@@ -133,7 +133,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -149,6 +149,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL ISSUE FOUND: Same scikit-learn version mismatch issue affects eye tracking models. While API functions correctly, PSO optimization works, and structure is maintained, the underlying ML model predictions may be inverted due to version compatibility issues. Requires same fix as behavioral assessment - either model retraining with scikit-learn 1.3.2 or version downgrade to 1.3.0."
+      - working: false
+        agent: "testing"
+        comment: "FINAL VERIFICATION: Eye tracking assessment API functions correctly with PSO optimization working properly (weights normalized to 1.0). However, underlying ML models likely affected by same prediction inversion issue as behavioral assessment. PSO successfully optimizes ensemble weighting, but if base models are inverted, final predictions remain unreliable. Performance acceptable. Requires resolution of core ML model compatibility issue."
 
   - task: "Facial Analysis Assessment API"
     implemented: true
