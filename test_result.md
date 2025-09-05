@@ -109,7 +109,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -125,6 +125,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL ISSUE FOUND: After library updates to Python 3 compatible versions (scikit-learn 1.3.2), model predictions are INVERTED. High ASD indicators (all 1s) return probability ~0.000004, while low ASD indicators (all 0s) return probability ~1.0. This is opposite of expected behavior. API functions without crashes, PSO optimization works, neutral values accepted, but prediction logic is reversed. Likely caused by scikit-learn version mismatch (models trained with 1.3.0, running on 1.3.2). REQUIRES MODEL RETRAINING OR VERSION DOWNGRADE before production deployment."
+      - working: false
+        agent: "testing"
+        comment: "FINAL VERIFICATION FAILED: Prediction inversion issue STILL EXISTS after attempted fixes. Critical test results: High ASD indicators (all 1s) → probability 0.000000 (expected >0.5), Low ASD indicators (all 0s) → probability 1.000000 (expected <0.5). PSO optimization working correctly (weights normalized), neutral values (0.5) processed properly, performance acceptable (0.092s avg response time). However, core ML prediction logic remains completely inverted, making system clinically dangerous. SYSTEM NOT READY FOR PRODUCTION DEPLOYMENT."
 
   - task: "Eye Tracking Assessment API"
     implemented: true
