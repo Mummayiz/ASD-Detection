@@ -9,6 +9,12 @@ import os
 import motor.motor_asyncio
 from datetime import datetime
 import json
+import os
+# --- Add these lines to make model path flexible ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))        # backend folder
+ROOT_DIR = os.path.dirname(BASE_DIR)                        # project root
+MODELS_DIR = os.environ.get("MODELS_DIR", os.path.join(ROOT_DIR, "models"))
+# -----------------------------------------------------
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
