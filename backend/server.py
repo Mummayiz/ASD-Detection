@@ -347,22 +347,20 @@ async def api_health_check():
 
 def get_asd_probability(model, predict_proba_result):
     """
-    Get the probability for ASD class (1) from predict_proba result.
-    Handles different class ordering between models.
+    Get the probability for ASD class from predict_proba result.
+    Due to inverted training labels, ASD class is actually at index 0.
     """
     try:
         classes = model.classes_
         if len(classes) == 2:
-            # Find index of ASD class (1)
-            asd_index = np.where(classes == 1)[0]
-            if len(asd_index) > 0:
-                return predict_proba_result[asd_index[0]]
-            # If class 1 not found, assume second position
-            return predict_proba_result[1]
-        return predict_proba_result[1]
+            # The models were trained with inverted labels:
+            # Class 0 = ASD, Class 1 = No ASD
+            # So we return the probability of Class 0 (index 0)
+            return predict_proba_result[0]
+        return predict_proba_result[0]
     except:
-        # Fallback to second position if anything goes wrong
-        return predict_proba_result[1]
+        # Fallback to first position
+        return predict_proba_result[0]
 
 @app.post("/api/assessment/behavioral")
 async def assess_behavioral(data: BehavioralAssessment):
