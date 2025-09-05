@@ -175,7 +175,7 @@ backend:
     implemented: true
     working: false
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -191,6 +191,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL ISSUE: Complete assessment inherits the inverted prediction problem from behavioral and eye tracking stages. While API structure and weighting logic work correctly, final predictions are based on inverted probabilities from underlying ML models. This affects the overall assessment accuracy and clinical recommendations. Requires fixing the underlying model compatibility issues first."
+      - working: false
+        agent: "testing"
+        comment: "FINAL VERIFICATION: Complete assessment API integration working correctly - combines all three stages with proper weighting (60% behavioral, 25% eye tracking, 15% facial), returns comprehensive results with clinical recommendations. However, inherits critical prediction inversion issue from behavioral and eye tracking stages. Final predictions unreliable due to inverted base model probabilities. System architecture sound but core ML models require immediate attention."
 
 frontend:
   - task: "Fix blank page error"
