@@ -128,9 +128,9 @@ backend:
 
   - task: "Eye Tracking Assessment API"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -143,6 +143,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "PSO INTEGRATION VERIFIED: Eye tracking assessment now includes PSO optimization for ensemble predictions. PSO weights properly normalized, PSO results included in model_results response with weights array. Tested multiple scenarios - PSO optimization working correctly across different input patterns."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE FOUND: Same scikit-learn version mismatch issue affects eye tracking models. While API functions correctly, PSO optimization works, and structure is maintained, the underlying ML model predictions may be inverted due to version compatibility issues. Requires same fix as behavioral assessment - either model retraining with scikit-learn 1.3.2 or version downgrade to 1.3.0."
 
   - task: "Facial Analysis Assessment API"
     implemented: true
