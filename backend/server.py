@@ -279,31 +279,53 @@ class AssessmentResult(BaseModel):
     behavioral_prediction: Optional[Dict[str, Any]] = None
     eye_tracking_prediction: Optional[Dict[str, Any]] = None
     facial_analysis_prediction: Optional[Dict[str, Any]] = None
-    final_prediction: Dict[str, Any]
-    confidence_score: float
-    explanation: Dict[str, Any]
-    timestamp: str
-
+    def _safe_load_model(fname):
+    """Load a joblib model from MODELS_DIR; return None and log on failure."""
+    path = os.path.join(MODELS_DIR, fname)
+    if not os.path.exists(path):
+        logger.warning(f"Model file not found: {path}")
+        return None
+    try:
+        m = joblib.load(path)
+        logger.info(f"Loaded model: {path}")
+        return m
+    except Exception as e:
+        logger.error(f"Failed to load model {path}: {e}")
+        return None
 @app.on_event("startup")
 async def load_models():
-    """Load trained ML models on startup"""
+    """Load trained ML models on startup (safe, flexible paths)."""
     global models, scalers, encoders
-    
     try:
-        # Load behavioral models
-        models['behavioral_rf'] = joblib.load('/app/models/behavioral_rf_model.joblib')
-        models['behavioral_svm'] = joblib.load('/app/models/behavioral_svm_model.joblib')
-        scalers['behavioral'] = joblib.load('/app/models/behavioral_scaler.joblib')
-        encoders['behavioral'] = joblib.load('/app/models/behavioral_label_encoder.joblib')
-        
-        logger.info("Behavioral models loaded successfully")
-        
-        # Load eye tracking models if available
-        if os.path.exists('/app/models/eye_tracking_rf_model.joblib'):
-            models['eye_tracking_rf'] = joblib.load('/app/models/eye_tracking_rf_model.joblib')
-            models['eye_tracking_svm'] = joblib.load('/app/models/eye_tracking_svm_model.joblib')
-            scalers['eye_tracking'] = joblib.load('/app/models/eye_tracking_scaler.joblib')
-            logger.info("Eye tracking models loaded successfully")
+        # Behavioral models
+        models['behavioral_rf'] = _safe_load_model('behavioral_rf_model.joblib')
+        models['behavioral_svm'] = _safe_load_model('behavioral_svm_model.joblib')
+        scalers['behavioral']   = _safe_load_model('behavioral_scaler.joblib')
+        encoders['behavioral']  = _safe_load_model('behavioral_label_encoder.joblib')
+
+        if models.get('behavioral_rf') and models.get('behavioral_svm'):
+            logger.info("Behavioral models loaded successfully")
+        else:
+            logger.warning("Behavioral models not fully loaded; behavioral stage may be degraded")
+
+        # Eye-tracking models (optional)
+        if any(os.path.exists(os.path.join(MODELS_DIR, fn)) for fn in (
+                'eye_tracking_rf_model.joblib', 'eye_tracking_svm_model.joblib', 'eye_tracking_scaler.joblib')):
+            models['eye_tracking_rf'] = _safe_load_model('eye_tracking_rf_model.joblib')
+            models['eye_tracking_svm'] = _safe_load_model('eye_tracking_svm_model.joblib')
+            scalers['eye_tracking'] = _safe_load_model('eye_tracking_scaler.joblib')
+            logger.info("Eye-tracking models loaded (where present)")
+        else:
+            logger.info("No eye-tracking model files present in MODELS_DIR")
+
+        # Summary
+        loaded_count = sum(1 for v in models.values() if v is not None)
+        logger.info(f"Model loading complete. Models loaded: {loaded_count}")
+
+    except Exception as e:
+        logger.exception(f"Unexpected error while loading models: {e}")
+        # don't re-raise — keep the app up so health checks can show status
+
         
         logger.info("All models loaded successfully")
         
