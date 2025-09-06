@@ -1,3 +1,6 @@
+setuptools>=68.0.0
+wheel
+
 # Core web & runtime
 fastapi==0.110.1
 uvicorn[standard]==0.25.0
@@ -29,8 +32,6 @@ opencv-python-headless==4.8.1.78
 pillow
 
 # Optional / tooling & extras
-setuptools>=68.0.0
-wheel
 boto3>=1.34.129
 requests-oauthlib>=2.0.0
 cryptography>=42.0.8
@@ -43,7 +44,7 @@ isort>=5.13.2
 flake8>=7.0.0
 mypy>=1.8.0
 
-# Optional ML explainability / extras (keep but can be omitted if causing large installs)
+# Optional ML explainability / extras (can omit if heavy)
 pyswarms==1.3.0
 shap==0.42.1
 lime==0.2.0.1
