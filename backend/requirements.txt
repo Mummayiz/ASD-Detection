@@ -1,30 +1,53 @@
-fastapi
-uvicorn[standard]
-python-dotenv
-pymongo
-motor
-pydantic
-requests
-pandas
-numpy
-scikit-learn
+# Core web & runtime
+fastapi==0.110.1
+uvicorn[standard]==0.25.0
+python-dotenv>=1.0.1
+
+# DB
+pymongo==4.5.0
+motor==3.3.1
+dnspython
+
+# ML / data
+pandas==2.0.3
+numpy==1.24.3
+scikit-learn==1.3.0
 scipy
-joblib
+joblib==1.3.0
 threadpoolctl
-python-multipart
-opencv-python-headless
+
+# I/O, auth, utils
+requests>=2.31.0
+python-multipart>=0.0.9
+pyjwt>=2.10.1
+passlib>=1.7.4
+python-jose>=3.3.0
+email-validator>=2.2.0
+
+# CV / imaging
+opencv-python-headless==4.8.1.78
+pillow
+
+# Optional / tooling & extras
 setuptools>=68.0.0
 wheel
-boto3
-requests-oauthlib
-cryptography
-email-validator
-pyjwt
-passlib
-tzdata
-pytest
-black
-isort
-flake8
-mypy
-python-jose
+boto3>=1.34.129
+requests-oauthlib>=2.0.0
+cryptography>=42.0.8
+tzdata>=2024.2
+
+# Dev / QA (kept but not required at runtime)
+pytest>=8.0.0
+black>=24.1.1
+isort>=5.13.2
+flake8>=7.0.0
+mypy>=1.8.0
+
+# Optional ML explainability / extras (keep but can be omitted if causing large installs)
+pyswarms==1.3.0
+shap==0.42.1
+lime==0.2.0.1
+jq>=1.6.0
+typer>=0.9.0
+tensorflow==2.13.0
+
